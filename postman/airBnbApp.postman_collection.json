@@ -1,0 +1,543 @@
+{
+  "info": {
+    "_postman_id": "f3bd8f25-95cb-4d33-b04f-2cc3ff9a9f72",
+    "name": "airBnbApp API",
+    "description": "Postman collection for /api/v1 endpoints in airBnbApp.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "hotelId",
+      "value": "1"
+    },
+    {
+      "key": "roomId",
+      "value": "1"
+    },
+    {
+      "key": "bookingId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Signup",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"guest1@test.com\",\n  \"password\": \"Pass@123\",\n  \"name\": \"Guest One\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/signup"
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', res.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"guest1@test.com\",\n  \"password\": \"Pass@123\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        },
+        {
+          "name": "Refresh Access Token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refresh"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Browse (Public)",
+      "item": [
+        {
+          "name": "Search Hotels (GET with Body)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"city\": \"Bengaluru\",\n  \"startDate\": \"2026-02-20\",\n  \"endDate\": \"2026-02-23\",\n  \"roomsCount\": 1,\n  \"page\": 0,\n  \"size\": 10\n}"
+            },
+            "url": "{{baseUrl}}/hotels/search"
+          }
+        },
+        {
+          "name": "Hotel Info",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/hotels/{{hotelId}}/info"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (Bearer Required)",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/users/profile"
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Name\",\n  \"birthOfDate\": \"1998-01-10\",\n  \"gender\": \"MALE\"\n}"
+            },
+            "url": "{{baseUrl}}/users/profile"
+          }
+        },
+        {
+          "name": "Get My Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/users/myBookings"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings (Bearer Required)",
+      "item": [
+        {
+          "name": "Initialize Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hotelId\": {{hotelId}},\n  \"roomId\": {{roomId}},\n  \"checkInDate\": \"2026-02-25\",\n  \"checkOutDate\": \"2026-02-27\",\n  \"roomsCount\": 1\n}"
+            },
+            "url": "{{baseUrl}}/bookings/init"
+          }
+        },
+        {
+          "name": "Initiate Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/bookings/{{bookingId}}/payments"
+          }
+        },
+        {
+          "name": "Add Guests (Known Controller Bug)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"name\": \"Guest A\",\n    \"age\": 28,\n    \"gender\": \"MALE\"\n  }\n]"
+            },
+            "url": "{{baseUrl}}/bookings/{{bookingId}}/addGuests"
+          }
+        },
+        {
+          "name": "Get Booking Status (Known Path Variable Bug)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/bookings/{{bookingId}}/status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Hotels (ROLE_HOTEL_MANAGER)",
+      "item": [
+        {
+          "name": "Create Hotel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sunrise Suites\",\n  \"city\": \"Bengaluru\",\n  \"photos\": [\"p1.jpg\"],\n  \"amenities\": [\"wifi\", \"pool\"],\n  \"contactInfo\": {\n    \"phoneNumber\": \"9999999999\",\n    \"email\": \"hotel@test.com\"\n  },\n  \"active\": false\n}"
+            },
+            "url": "{{baseUrl}}/admin/hotels"
+          }
+        },
+        {
+          "name": "Get All My Hotels",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/hotels"
+          }
+        },
+        {
+          "name": "Get Hotel By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/hotels/{{hotelId}}"
+          }
+        },
+        {
+          "name": "Update Hotel",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sunrise Suites Updated\",\n  \"city\": \"Bengaluru\",\n  \"photos\": [\"p1.jpg\"],\n  \"amenities\": [\"wifi\", \"pool\"],\n  \"contactInfo\": {\n    \"phoneNumber\": \"9999999999\",\n    \"email\": \"hotel@test.com\"\n  },\n  \"active\": false\n}"
+            },
+            "url": "{{baseUrl}}/admin/hotels/{{hotelId}}"
+          }
+        },
+        {
+          "name": "Delete Hotel",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/hotels/{{hotelId}}"
+          }
+        },
+        {
+          "name": "Activate Hotel",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/hotels/{{hotelId}}/activate"
+          }
+        },
+        {
+          "name": "Get Hotel Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/hotels/{{hotelId}}/bookings"
+          }
+        },
+        {
+          "name": "Get Hotel Report",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/hotels/{{hotelId}}/reports?startDate=2026-01-01&endDate=2026-01-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "hotels",
+                "{{hotelId}}",
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-01-01"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-01-31"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Rooms (ROLE_HOTEL_MANAGER)",
+      "item": [
+        {
+          "name": "Create Room",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"DELUXE\",\n  \"basePrice\": 2500,\n  \"photos\": [\"r1.jpg\"],\n  \"amenities\": [\"ac\", \"wifi\"],\n  \"totalCount\": 10,\n  \"capacity\": 2\n}"
+            },
+            "url": "{{baseUrl}}/admin/hotels/{{hotelId}}/rooms"
+          }
+        },
+        {
+          "name": "Get All Rooms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/hotels/{{hotelId}}/rooms"
+          }
+        },
+        {
+          "name": "Get Room By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/hotels/{{hotelId}}/rooms/{{roomId}}"
+          }
+        },
+        {
+          "name": "Update Room",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"DELUXE\",\n  \"basePrice\": 2600,\n  \"photos\": [\"r1.jpg\"],\n  \"amenities\": [\"ac\", \"wifi\"],\n  \"totalCount\": 10,\n  \"capacity\": 2\n}"
+            },
+            "url": "{{baseUrl}}/admin/hotels/{{hotelId}}/rooms/{{roomId}}"
+          }
+        },
+        {
+          "name": "Delete Room",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/hotels/{{hotelId}}/rooms/{{roomId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Inventory (ROLE_HOTEL_MANAGER)",
+      "item": [
+        {
+          "name": "Get Inventory By Room",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/admin/inventory/rooms/{{roomId}}"
+          }
+        },
+        {
+          "name": "Update Inventory",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startDate\": \"2026-02-20\",\n  \"endDate\": \"2026-02-25\",\n  \"surgeFactor\": 1.2,\n  \"closed\": false\n}"
+            },
+            "url": "{{baseUrl}}/admin/inventory/rooms/{{roomId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhook",
+      "item": [
+        {
+          "name": "Stripe Payment Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Stripe-Signature",
+                "value": "t=demo,v1=demo"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"evt_test_webhook\",\n  \"type\": \"checkout.session.completed\"\n}"
+            },
+            "url": "{{baseUrl}}/webhook/payment"
+          }
+        }
+      ]
+    }
+  ]
+}
